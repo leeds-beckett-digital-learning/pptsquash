@@ -31,7 +31,14 @@ public class VideoDataModel extends javax.swing.table.DefaultTableModel
     super( null, new String [] { "Embedded Media", "Original Size", "New Size", "Progress" } );
   }
 
-  
+  public void resetProcessingData()
+  {
+    for ( int i=0; i<this.getRowCount(); i++ )
+    {
+      setValueAt( null, i, 2 );
+      setValueAt( null, i, 3 );
+    }
+  }
   
   @Override
   public Class getColumnClass(int columnIndex)

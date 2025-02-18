@@ -31,11 +31,19 @@ import java.util.logging.Logger;
  */
 public class FfmpegRunner
 {
+  public static final int AUDIO_MODE_PASS                  = 0;
+  public static final int AUDIO_MODE_MODERATE_COMPRESSION  = 1;
+  public static final int AUDIO_MODE_AGRESSIVE_COMPRESSION = 2;
+  public static final int AUDIO_MODE_REPLACE               = 3;
+  
+  public static final int VIDEO_MODE_AGRESSIVE_COMPRESSION = 0;
+  public static final int VIDEO_MODE_REPLACE               = 1;
+  
   Configuration config;
   ExecutorService executor = Executors.newFixedThreadPool(10);
   AnalyserListener listener;
   Process process = null;
-  
+
   public FfmpegRunner( Configuration config, AnalyserListener listener )
   {
     this.config   = config;
@@ -58,6 +66,121 @@ public class FfmpegRunner
   }
   
   
+  public ArrayList<String> commandArguments( 
+          VideoInformation vi, 
+          File videoin, 
+          File placeholder, 
+          File videoout,
+          int audioMode,
+          int videoMode ) throws IOException, InterruptedException
+  {
+    int outputindex = 0;
+    ArrayList<String> maplist = new ArrayList<>();
+    ArrayList<String> commandlist = new ArrayList<>();
+    commandlist.add( config.ffmpegexec.getAbsolutePath() );
+
+    // Automatic yes to overwrite question.
+    commandlist.add( "-y" );
+    // Progress output
+    commandlist.add( "-stats_period" );
+    commandlist.add( "1" );
+
+    if ( audioMode == AUDIO_MODE_REPLACE )
+    {
+      commandlist.add( "-f" );
+      commandlist.add( "lavfi" );      
+      commandlist.add( "-i" );
+      commandlist.add( "anullsrc" );
+      maplist.add( "-map" );    
+      maplist.add( "" + outputindex + ":0" );
+      outputindex++;      
+    }
+
+    // Placeholder file
+    if ( videoMode == VIDEO_MODE_REPLACE )
+    {
+      commandlist.add( "-i" );
+      commandlist.add( placeholder.getAbsolutePath() );
+      maplist.add( "-map" );    
+      maplist.add( "" + outputindex + ":0" );
+      outputindex++;
+    }
+    
+
+    if ( videoMode != VIDEO_MODE_REPLACE || audioMode != AUDIO_MODE_REPLACE )
+    {
+      // Input file
+      commandlist.add( "-i" );
+      commandlist.add( videoin.getAbsolutePath() );
+      if ( audioMode != AUDIO_MODE_REPLACE )
+      {
+        maplist.add( "-map" );
+        maplist.add( "" + outputindex + ":" + vi.getAudioIndex() );
+      }
+      if ( videoMode != VIDEO_MODE_REPLACE )
+      {
+        maplist.add( "-map" );
+        maplist.add( "" + outputindex + ":" + vi.getVideoIndex() );
+      }
+      outputindex++;
+    }
+
+    // Now add the mappings;
+    commandlist.addAll( maplist );
+
+    commandlist.add( "-vcodec" );    
+    commandlist.add( "libx264" );
+    commandlist.add( "-crf" );
+    commandlist.add( "100" );
+
+    // Extra video encoding options if input is still image
+    if ( videoMode == VIDEO_MODE_REPLACE )
+    {
+      commandlist.add( "-tune" );    
+      commandlist.add( "stillimage" );
+      commandlist.add( "-pix_fmt" );    
+      commandlist.add( "yuv420p" );
+    }
+    
+    // Audio Processing...
+    if ( audioMode == AUDIO_MODE_PASS )
+    {
+      commandlist.add( "-c:a" );    
+      commandlist.add( "copy" );    
+    }
+    else
+    {
+      commandlist.add( "-acodec" );
+      commandlist.add( "aac" );
+      commandlist.add( "-vbr" );
+      if ( audioMode == AUDIO_MODE_MODERATE_COMPRESSION )
+        commandlist.add( "1" );
+      else
+        commandlist.add( "3" );
+    }
+    
+    // Duration pegged to audio stream if there is one
+    // or video stream or two seconds
+    Float audioDuration = ( audioMode == AUDIO_MODE_REPLACE ) ? null : vi.getAudioDurationSecs();
+    Float videoDuration = ( videoMode == VIDEO_MODE_REPLACE ) ? null : vi.getVideoDurationSecs();
+    commandlist.add( "-t" );
+    if ( audioDuration != null )
+      commandlist.add( Float.toString( audioDuration ) );
+    else if ( videoDuration != null )
+      commandlist.add( Float.toString( videoDuration ) );
+    else
+      commandlist.add( "2.0" );
+    
+    // Output file
+    commandlist.add( videoout.getAbsolutePath() );
+    
+    for ( String s : commandlist )
+      System.out.print( s + " " );
+    System.out.println();
+    
+    return commandlist;
+  }  
+  
   /**
    * Run ffmpeg to process one input video to one output video.
    * Cannot operate by streaming because ffmpeg needs a seekable
@@ -68,59 +191,21 @@ public class FfmpegRunner
    * @param videoin
    * @param placeholder
    * @param videoout
+   * @param audioMode
+   * @param videoMode
    * @return 
    * @throws IOException
    * @throws InterruptedException 
    */
-  public int runFfmpeg( VideoInformation vi, File videoin, File placeholder, File videoout ) throws IOException, InterruptedException
+  public int runFfmpeg( 
+          VideoInformation vi, 
+          File videoin, 
+          File placeholder, 
+          File videoout,
+          int audioMode,
+          int videoMode ) throws IOException, InterruptedException
   {
-    ArrayList<String> commandlist = new ArrayList<>();
-    commandlist.add( config.ffmpegexec.getAbsolutePath() );
-    // Automatic yes to overwrite question.
-    commandlist.add( "-y" );
-    // Progress output
-    commandlist.add( "-stats_period" );
-    commandlist.add( "1" );
-
-    commandlist.add( "-loop" );
-    commandlist.add( "1" );
-
-    commandlist.add( "-i" );
-    commandlist.add( placeholder.getAbsolutePath() );
-    // Input file
-    commandlist.add( "-i" );
-    commandlist.add( videoin.getAbsolutePath() );
-    
-    // Only audio from the main input file
-    commandlist.add( "-map" );    
-    commandlist.add( "1:a" );
-    // Video output based on placeholder input file
-    commandlist.add( "-map" );    
-    commandlist.add( "0:v" );
-
-    commandlist.add( "-vcodec" );    
-    commandlist.add( "libx264" );
-    commandlist.add( "-crf" );
-    commandlist.add( "100" );
-    
-    commandlist.add( "-tune" );    
-    commandlist.add( "stillimage" );
-    commandlist.add( "-pix_fmt" );    
-    commandlist.add( "yuv420p" );
-//    commandlist.add( "-r" );
-//    commandlist.add( "1" );
-     
-    commandlist.add( "-acodec" );
-    commandlist.add( "aac" );
-    commandlist.add( "-vbr" );
-    commandlist.add( "1" );
-    
-    commandlist.add( "-t" );
-    commandlist.add( Float.toString( vi.durationSecs ) + "s" );
-    
-    // Output file
-    commandlist.add( videoout.getAbsolutePath() );
-    
+    ArrayList<String> commandlist = commandArguments( vi, videoin, placeholder, videoout, audioMode, videoMode );
     
     ProcessBuilder pb = new ProcessBuilder();
     pb.command( commandlist );
@@ -128,7 +213,7 @@ public class FfmpegRunner
 
     BufferedReader reader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) );
     String line;
-    int durationcsecs=Math.round( vi.getDurationSecs() * 100.0f );
+    int durationcsecs=Math.round( vi.getVideoDurationSecs() * 100.0f );
     System.out.println( "Duration " + durationcsecs );
     while( (line = reader.readLine()) != null )
     {
@@ -145,7 +230,6 @@ public class FfmpegRunner
           {
             int pertenthou = 10000 * t / durationcsecs;
             if ( pertenthou > 10000 ) pertenthou = 10000;
-            System.out.println( "Percentage " + pertenthou + "%" );
             if ( listener != null )
               listener.processingProgress( pertenthou );
           }
@@ -178,7 +262,7 @@ public class FfmpegRunner
     File voutf = new File( home, "tempfiltered.mp4" );
     try
     {
-      ff.runFfmpeg( null, vinf, vph, voutf );
+      ff.runFfmpeg( null, vinf, vph, voutf, 0, 0 );
     }
     catch ( IOException | InterruptedException ex )
     {

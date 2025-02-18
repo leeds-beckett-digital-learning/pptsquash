@@ -34,38 +34,72 @@ public class VideoInformation
 {
   Document doc;
   boolean parsed = false;
+  Element audiostream = null;
   Element videostream = null;
+  Integer audioIndex;
+  Integer videoIndex;
   Integer width;
   Integer height;
-  Float durationSecs;
+  Float videoDurationSecs;
+  Float audioDurationSecs;
   
   private void parse()
   {
     try    
     {
+      NodeList nodeList;
       XPath xPath = XPathFactory.newInstance().newXPath();
-      XPathExpression findVideo = xPath.compile( "/ffprobe/streams/stream[@codec_type = 'video']" );
-      XPathExpression findHeight = xPath.compile( "@height" );
-      XPathExpression findWidth = xPath.compile( "@width" );
-      XPathExpression findDuration = xPath.compile( "@duration" );
+      XPathExpression findStream    = xPath.compile( "/ffprobe/streams/stream" );
+      XPathExpression findIndex     = xPath.compile( "@index" );
+      XPathExpression findCodecType = xPath.compile( "@codec_type" );
+      XPathExpression findHeight    = xPath.compile( "@height" );
+      XPathExpression findWidth     = xPath.compile( "@width" );
+      XPathExpression findDuration  = xPath.compile( "@duration" );
       
-      NodeList nodeList = (NodeList) findVideo.evaluate( doc, XPathConstants.NODESET );
-      if ( nodeList.getLength() > 0 )
+      nodeList = (NodeList) findStream.evaluate( doc, XPathConstants.NODESET );
+      for ( int i=0; i<nodeList.getLength(); i++ )
       {
-        videostream = (Element)nodeList.item( 0 );
-        String a;
-        a = (String) findWidth.evaluate( videostream, XPathConstants.STRING );
-        width = Integer.valueOf( a );
-        a = (String) findHeight.evaluate( videostream, XPathConstants.STRING );
-        height = Integer.valueOf( a );
-        a = (String) findDuration.evaluate( videostream, XPathConstants.STRING );
-        durationSecs = Float.valueOf( a );
+        String a, at;
+        Element stream = (Element)nodeList.item( i );
+        at = (String) findCodecType.evaluate( stream, XPathConstants.STRING );
+        if ( videostream == null && "video".equals( at ) )
+        {
+          videostream = stream;
+          a = (String) findIndex.evaluate( stream, XPathConstants.STRING );
+          videoIndex = Integer.valueOf( a );
+          a = (String) findWidth.evaluate( stream, XPathConstants.STRING );
+          width = Integer.valueOf( a );
+          a = (String) findHeight.evaluate( stream, XPathConstants.STRING );
+          height = Integer.valueOf( a );
+          a = (String) findDuration.evaluate( stream, XPathConstants.STRING );
+          videoDurationSecs = Float.valueOf( a );
+        }
+        if ( audiostream == null && "audio".equals( at ) )
+        {
+          audiostream = stream;
+          a = (String) findIndex.evaluate( stream, XPathConstants.STRING );
+          audioIndex = Integer.valueOf( a );
+          a = (String) findDuration.evaluate( stream, XPathConstants.STRING );
+          audioDurationSecs = Float.valueOf( a );
+        }
       }
     }
     catch ( XPathExpressionException ex )
     {
       Logger.getLogger( VideoInformation.class.getName() ).log( Level.SEVERE, null, ex );
     }
+  }
+
+  public Integer getAudioIndex()
+  {
+    if ( !parsed ) parse();
+    return audioIndex;
+  }
+
+  public Integer getVideoIndex()
+  {
+    if ( !parsed ) parse();
+    return videoIndex;
   }
   
   public Integer getWidth()
@@ -80,15 +114,21 @@ public class VideoInformation
     return height;
   }
 
-  public Float getDurationSecs()
+  public Float getVideoDurationSecs()
   {
     if ( !parsed ) parse();
-    return durationSecs;
+    return videoDurationSecs;
   }
 
-  public boolean hasEnoughInformation()
+  public Float getAudioDurationSecs()
   {
     if ( !parsed ) parse();
-    return width!=null && height!=null && durationSecs!=null;
+    return audioDurationSecs;
+  }
+
+  public boolean hasEnoughVideoInformation()
+  {
+    if ( !parsed ) parse();
+    return width!=null && height!=null && videoDurationSecs!=null;
   }
 }

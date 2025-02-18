@@ -51,6 +51,8 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     busyLabel.setIcon( null );
     dataTable.setModel( videoModel );
     dataTable.setDefaultRenderer( ProgressDatum.class, new ProgressRenderer(0, 10000) );
+    audioModeComboBox.setSelectedIndex( 3 );
+    videoModeComboBox.setSelectedIndex( 1 );
   }
 
   
@@ -77,14 +79,18 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     jScrollPane3 = new javax.swing.JScrollPane();
     jTextPane3 = new javax.swing.JTextPane();
     dataPanel = new javax.swing.JPanel();
-    jPanel4 = new javax.swing.JPanel();
-    jScrollPane2 = new javax.swing.JScrollPane();
-    dataTable = new javax.swing.JTable();
     jPanel1 = new javax.swing.JPanel();
+    jLabel3 = new javax.swing.JLabel();
+    audioModeComboBox = new javax.swing.JComboBox<>();
+    jLabel4 = new javax.swing.JLabel();
+    videoModeComboBox = new javax.swing.JComboBox<>();
     jLabel1 = new javax.swing.JLabel();
     openedSizeLabel = new javax.swing.JLabel();
     jLabel2 = new javax.swing.JLabel();
     savedSizeLabel = new javax.swing.JLabel();
+    jPanel4 = new javax.swing.JPanel();
+    jScrollPane2 = new javax.swing.JScrollPane();
+    dataTable = new javax.swing.JTable();
     jPanel3 = new javax.swing.JPanel();
     busyLabel = new javax.swing.JLabel();
     menuBar = new javax.swing.JMenuBar();
@@ -150,6 +156,36 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
 
     dataPanel.setLayout(new java.awt.BorderLayout());
 
+    jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+    jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    jPanel1.setLayout(new java.awt.GridLayout(4, 2, 10, 4));
+
+    jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+    jLabel3.setText("Audio Mode:");
+    jPanel1.add(jLabel3);
+
+    audioModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Leave Unprocessed", "Moderate Compression", "Agressive Compression", "Replace with silence" }));
+    jPanel1.add(audioModeComboBox);
+
+    jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+    jLabel4.setText("Video Mode:");
+    jPanel1.add(jLabel4);
+
+    videoModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Recompress Agressively", "Replace with Placeholder Image" }));
+    jPanel1.add(videoModeComboBox);
+
+    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+    jLabel1.setText("Opened PPTX File Size:");
+    jPanel1.add(jLabel1);
+    jPanel1.add(openedSizeLabel);
+
+    jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+    jLabel2.setText("Saved PPTX File Size:");
+    jPanel1.add(jLabel2);
+    jPanel1.add(savedSizeLabel);
+
+    dataPanel.add(jPanel1, java.awt.BorderLayout.NORTH);
+
     jPanel4.setBackground(new java.awt.Color(255, 255, 255));
     jPanel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
     jPanel4.setLayout(new java.awt.BorderLayout());
@@ -192,22 +228,6 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     jPanel4.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
     dataPanel.add(jPanel4, java.awt.BorderLayout.CENTER);
-
-    jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-    jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
-    jPanel1.setLayout(new java.awt.GridLayout(2, 2, 10, 4));
-
-    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-    jLabel1.setText("Opened PPTX File Size:");
-    jPanel1.add(jLabel1);
-    jPanel1.add(openedSizeLabel);
-
-    jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-    jLabel2.setText("Saved PPTX File Size:");
-    jPanel1.add(jLabel2);
-    jPanel1.add(savedSizeLabel);
-
-    dataPanel.add(jPanel1, java.awt.BorderLayout.NORTH);
 
     mainPanel.add(dataPanel, "data");
 
@@ -295,7 +315,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
 
   private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saveMenuItemActionPerformed
   {//GEN-HEADEREND:event_saveMenuItemActionPerformed
-    File ofile = new File( processor.getInfile().getParentFile(), "VideoStripped_" + processor.getInfile().getName() );
+    File ofile = new File( processor.getInfile().getParentFile(), "Squashed_" + processor.getInfile().getName() );
     JFileChooser chooser = new JFileChooser();
     chooser.addChoosableFileFilter( filter );
     chooser.setFileFilter( filter );
@@ -322,7 +342,13 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
           return;
       }
       System.out.println( "Output to " + ofile.getAbsolutePath() );
-      processor.process(processor.getInfile(), ofile );
+      videoModel.resetProcessingData();
+      savedSizeLabel.setText( "" );
+      processor.process(
+              processor.getInfile(), 
+              ofile, 
+              audioModeComboBox.getSelectedIndex(), 
+              videoModeComboBox.getSelectedIndex() );
     }
   }//GEN-LAST:event_saveMenuItemActionPerformed
 
@@ -425,6 +451,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JComboBox<String> audioModeComboBox;
   private javax.swing.JLabel busyLabel;
   private javax.swing.JPanel dataPanel;
   private javax.swing.JTable dataTable;
@@ -433,6 +460,8 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   private javax.swing.JMenu fileMenu;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel2;
+  private javax.swing.JLabel jLabel3;
+  private javax.swing.JLabel jLabel4;
   private javax.swing.JLabel jLabel6;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel3;
@@ -452,6 +481,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   private javax.swing.JLabel savedSizeLabel;
   private javax.swing.JPopupMenu.Separator sep1;
   private javax.swing.JPopupMenu.Separator sep2;
+  private javax.swing.JComboBox<String> videoModeComboBox;
   private javax.swing.JPanel waitingPanel;
   // End of variables declaration//GEN-END:variables
 

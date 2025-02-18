@@ -38,7 +38,7 @@ public class PowerPointProcesssor implements Runnable
   public static final int STATUS_ERROR          =3;
   public static final int STATUS_ANALYSED       =4;
   public static final int STATUS_PROCESSED      =5;
-  
+
   private int status = STATUS_WAITING;
   private Thread thread;
   private final Configuration config;
@@ -50,6 +50,9 @@ public class PowerPointProcesssor implements Runnable
   private int videoCount=0;
   private long videoBytes=0L;
   private int current;
+  
+  private int audioMode;
+  private int videoMode;
   
   public PowerPointProcesssor( Configuration config, AnalyserListener listener )
   {
@@ -80,10 +83,12 @@ public class PowerPointProcesssor implements Runnable
     thread.start();
   }
   
-  public void process( File infile, File outfile )
+  public void process( File infile, File outfile, int audioMode, int videoMode )
   {
     this.infile = infile;
     this.outfile = outfile;
+    this.audioMode = audioMode;
+    this.videoMode = videoMode;
     status = STATUS_PROCESSING;
     listener.analyserStatusChange();
     thread = new Thread( this );
@@ -172,13 +177,19 @@ public class PowerPointProcesssor implements Runnable
       throw new IOException( "Unable to analyse video stream." );
     System.out.println( "Video width    " + vi.getWidth() );
     System.out.println( "Video height   " + vi.getHeight() );
-    System.out.println( "Video duration " + vi.getDurationSecs() );
-    if ( !vi.hasEnoughInformation() )
+    System.out.println( "Video duration " + vi.getVideoDurationSecs() );
+    if ( !vi.hasEnoughVideoInformation() )
       throw new IOException( "Unable to parse video information in MP4 clip." );
     
     PlaceholderImageCreator.createPlaceholderImage( "png", config.tempplaceholderimagefile, vi.getWidth(), vi.getHeight() );
     
-    int exitCode = this.ffmpegrunner.runFfmpeg( vi, config.temporiginalvideofile, config.tempplaceholderimagefile, config.tempfilteredvideofile );
+    int exitCode = this.ffmpegrunner.runFfmpeg( 
+            vi, 
+            config.temporiginalvideofile, 
+            config.tempplaceholderimagefile, 
+            config.tempfilteredvideofile,
+            audioMode,
+            videoMode );
     listener.processingProgressFile( current-1, config.tempfilteredvideofile.length() );
     config.temporiginalvideofile.delete();
     if ( exitCode != 0 )

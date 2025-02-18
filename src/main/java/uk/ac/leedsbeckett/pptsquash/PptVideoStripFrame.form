@@ -236,6 +236,88 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
           <SubComponents>
+            <Container class="javax.swing.JPanel" name="jPanel1">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                </Property>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                    <EmptyBorder bottom="8" left="8" right="8" top="8"/>
+                  </Border>
+                </Property>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="North"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                <Property name="columns" type="int" value="2"/>
+                <Property name="horizontalGap" type="int" value="10"/>
+                <Property name="rows" type="int" value="4"/>
+                <Property name="verticalGap" type="int" value="4"/>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="jLabel3">
+                  <Properties>
+                    <Property name="horizontalAlignment" type="int" value="11"/>
+                    <Property name="text" type="java.lang.String" value="Audio Mode:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JComboBox" name="audioModeComboBox">
+                  <Properties>
+                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                      <StringArray count="4">
+                        <StringItem index="0" value="Leave Unprocessed"/>
+                        <StringItem index="1" value="Moderate Compression"/>
+                        <StringItem index="2" value="Agressive Compression"/>
+                        <StringItem index="3" value="Replace with silence"/>
+                      </StringArray>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel4">
+                  <Properties>
+                    <Property name="horizontalAlignment" type="int" value="11"/>
+                    <Property name="text" type="java.lang.String" value="Video Mode:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JComboBox" name="videoModeComboBox">
+                  <Properties>
+                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                      <StringArray count="2">
+                        <StringItem index="0" value="Recompress Agressively"/>
+                        <StringItem index="1" value="Replace with Placeholder Image"/>
+                      </StringArray>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel1">
+                  <Properties>
+                    <Property name="horizontalAlignment" type="int" value="11"/>
+                    <Property name="text" type="java.lang.String" value="Opened PPTX File Size:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="openedSizeLabel">
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel2">
+                  <Properties>
+                    <Property name="horizontalAlignment" type="int" value="11"/>
+                    <Property name="text" type="java.lang.String" value="Saved PPTX File Size:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="savedSizeLabel">
+                </Component>
+              </SubComponents>
+            </Container>
             <Container class="javax.swing.JPanel" name="jPanel4">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -278,48 +360,6 @@
                     </Component>
                   </SubComponents>
                 </Container>
-              </SubComponents>
-            </Container>
-            <Container class="javax.swing.JPanel" name="jPanel1">
-              <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder bottom="8" left="8" right="8" top="8"/>
-                  </Border>
-                </Property>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="North"/>
-                </Constraint>
-              </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
-                <Property name="columns" type="int" value="2"/>
-                <Property name="horizontalGap" type="int" value="10"/>
-                <Property name="rows" type="int" value="2"/>
-                <Property name="verticalGap" type="int" value="4"/>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel1">
-                  <Properties>
-                    <Property name="horizontalAlignment" type="int" value="11"/>
-                    <Property name="text" type="java.lang.String" value="Opened PPTX File Size:"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="openedSizeLabel">
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel2">
-                  <Properties>
-                    <Property name="horizontalAlignment" type="int" value="11"/>
-                    <Property name="text" type="java.lang.String" value="Saved PPTX File Size:"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="savedSizeLabel">
-                </Component>
               </SubComponents>
             </Container>
           </SubComponents>
