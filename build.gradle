@@ -1,0 +1,24 @@
+
+plugins {
+    id 'application'
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'Main'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'Main'
+    )
+  }
+}
