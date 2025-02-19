@@ -36,6 +36,8 @@ public class Main
   
   public static void main( String[] args )
   {
+    // Stop Windows making the UI ugly by zooming in
+    System.setProperty("sun.java2d.uiScale", "1.0");
     try
     {
         UIManager.setLookAndFeel(

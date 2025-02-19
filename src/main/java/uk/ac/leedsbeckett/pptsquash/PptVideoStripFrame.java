@@ -16,18 +16,22 @@
 package uk.ac.leedsbeckett.pptsquash;
 
 import java.awt.CardLayout;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
  * @author maber01
  */
-public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserListener
+public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserListener, WindowListener
 {
   private final PowerPointProcesssor processor;
   FileNameExtensionFilter filter = new FileNameExtensionFilter( "MS PowerPoint Files", "pptx" );
@@ -51,8 +55,13 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     busyLabel.setIcon( null );
     dataTable.setModel( videoModel );
     dataTable.setDefaultRenderer( ProgressDatum.class, new ProgressRenderer(0, 10000) );
+    DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+    rightRenderer.setHorizontalAlignment( JLabel.RIGHT );
+    dataTable.getColumnModel().getColumn( 1 ).setCellRenderer( rightRenderer );
+    dataTable.getColumnModel().getColumn( 2 ).setCellRenderer( rightRenderer );
     audioModeComboBox.setSelectedIndex( 3 );
     videoModeComboBox.setSelectedIndex( 1 );
+    addWindowListener( this );
   }
 
   
@@ -110,7 +119,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
       }
     });
 
-    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
     setTitle("PPt Squasher");
 
     mainPanel.setLayout(new java.awt.CardLayout());
@@ -164,14 +173,14 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     jLabel3.setText("Audio Mode:");
     jPanel1.add(jLabel3);
 
-    audioModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Leave Unprocessed", "Moderate Compression", "Agressive Compression", "Replace with silence" }));
+    audioModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Leave Unprocessed", "Moderate Compression (Music Quality)", "Agressive Compression (Speech Quality)", "Replace with silence" }));
     jPanel1.add(audioModeComboBox);
 
     jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
     jLabel4.setText("Video Mode:");
     jPanel1.add(jLabel4);
 
-    videoModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Recompress Agressively", "Replace with Placeholder Image" }));
+    videoModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Agressive Compression (Low Quality)", "Replace with Placeholder Image" }));
     jPanel1.add(videoModeComboBox);
 
     jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
@@ -354,9 +363,8 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
 
   private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_exitMenuItemActionPerformed
   {//GEN-HEADEREND:event_exitMenuItemActionPerformed
-    System.out.println( "Request to quit, kill ffmpeg." );
-    processor.kill();
-    System.exit( 0 );
+    System.out.println( "Request to quit." );
+    dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
   }//GEN-LAST:event_exitMenuItemActionPerformed
 
   private void prefMenuItemActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_prefMenuItemActionPerformed
@@ -484,6 +492,48 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   private javax.swing.JComboBox<String> videoModeComboBox;
   private javax.swing.JPanel waitingPanel;
   // End of variables declaration//GEN-END:variables
+
+  @Override
+  public void windowOpened( WindowEvent e )
+  {
+  }
+
+  @Override
+  public void windowClosing( WindowEvent e )
+  {
+    System.out.println( "Closing window" );
+    dispose();
+  }
+
+  @Override
+  public void windowClosed( WindowEvent e )
+  {
+    System.out.println( "System Exit" );
+    // Kill ffmpeg process if it's running now.
+    processor.kill();
+    // Do we need to do this to kill any threads that are hanging about?
+    System.exit( 0 );
+  }
+
+  @Override
+  public void windowIconified( WindowEvent e )
+  {
+  }
+
+  @Override
+  public void windowDeiconified( WindowEvent e )
+  {
+  }
+
+  @Override
+  public void windowActivated( WindowEvent e )
+  {
+  }
+
+  @Override
+  public void windowDeactivated( WindowEvent e )
+  {
+  }
 
 
 
