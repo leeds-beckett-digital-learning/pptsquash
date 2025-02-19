@@ -93,6 +93,8 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     audioModeComboBox = new javax.swing.JComboBox<>();
     jLabel4 = new javax.swing.JLabel();
     videoModeComboBox = new javax.swing.JComboBox<>();
+    jLabel5 = new javax.swing.JLabel();
+    countMediaLabel = new javax.swing.JLabel();
     jLabel1 = new javax.swing.JLabel();
     openedSizeLabel = new javax.swing.JLabel();
     jLabel2 = new javax.swing.JLabel();
@@ -167,7 +169,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
 
     jPanel1.setBackground(new java.awt.Color(255, 255, 255));
     jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
-    jPanel1.setLayout(new java.awt.GridLayout(4, 2, 10, 4));
+    jPanel1.setLayout(new java.awt.GridLayout(5, 2, 10, 4));
 
     jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
     jLabel3.setText("Audio Mode:");
@@ -182,6 +184,11 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
 
     videoModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Agressive Compression (Low Quality)", "Replace with Placeholder Image" }));
     jPanel1.add(videoModeComboBox);
+
+    jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+    jLabel5.setText("Relevant Media Objects:");
+    jPanel1.add(jLabel5);
+    jPanel1.add(countMediaLabel);
 
     jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
     jLabel1.setText("Opened PPTX File Size:");
@@ -309,11 +316,14 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
     processor.reset();
     openedSizeLabel.setText( "" );
     JFileChooser chooser = new JFileChooser();
+    chooser.setCurrentDirectory( config.getPreferredDirectory() );
     chooser.addChoosableFileFilter( filter );
     chooser.setFileFilter( filter );
     int outcome = chooser.showOpenDialog( this );
     if ( outcome == JFileChooser.APPROVE_OPTION )
     {
+      config.setPreferredDirectory( chooser.getCurrentDirectory() );
+      countMediaLabel.setText( "0" );
       while ( videoModel.getRowCount() > 0 )
         videoModel.removeRow( videoModel.getRowCount() - 1 );
       System.out.println( chooser.getSelectedFile().getAbsolutePath() );
@@ -397,6 +407,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   public void analysisProgressFile( String name, long size )
   {
     videoModel.addRow( new Object[] { name, DataSizeFormatter.format( size ), null, null } );
+    countMediaLabel.setText( Integer.toString( videoModel.getRowCount() ) );
   }
 
   @Override
@@ -461,6 +472,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JComboBox<String> audioModeComboBox;
   private javax.swing.JLabel busyLabel;
+  private javax.swing.JLabel countMediaLabel;
   private javax.swing.JPanel dataPanel;
   private javax.swing.JTable dataTable;
   private javax.swing.JPanel errorPanel;
@@ -470,6 +482,7 @@ public class PptVideoStripFrame extends javax.swing.JFrame implements AnalyserLi
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
   private javax.swing.JLabel jLabel4;
+  private javax.swing.JLabel jLabel5;
   private javax.swing.JLabel jLabel6;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel3;

@@ -16,9 +16,13 @@
 package uk.ac.leedsbeckett.pptsquash;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,13 +32,17 @@ import java.util.logging.Logger;
  */
 public class Configuration
 {
-  public File homedir;
-  public File ffmpegdir;
-  public File ffmpegexec;
-  public File ffmpegprobeexec;
-  public File temporiginalvideofile;
-  public File tempfilteredvideofile;
-  public File tempplaceholderimagefile;
+  private File homedir;
+  private File ffmpegdir;
+  private File ffmpegexec;
+  private File ffmpegprobeexec;
+  private File temporiginalvideofile;
+  private File tempfilteredvideofile;
+  private File tempplaceholderimagefile;
+
+  private File propFile;
+  Properties properties;
+  
   public static Configuration prepHome()
   {
     Configuration config = new Configuration();
@@ -42,6 +50,20 @@ public class Configuration
     config.homedir = new File( System.getProperty("user.home"), ".pptsquash" );
     if ( !config.homedir.exists() )
       config.homedir.mkdirs();
+    
+    config.propFile = new File( config.homedir, "prefs.properties" );
+    config.properties = new Properties();
+    if ( config.propFile.exists() )
+    {
+      try ( FileReader reader = new FileReader( config.propFile ) )
+      {
+        config.properties.load( reader );
+      }
+      catch ( IOException ex )
+      {
+      }
+    }
+    
     config.temporiginalvideofile = new File( config.homedir, "temporiginal.mp4" );
     if ( config.temporiginalvideofile.exists() )
       config.temporiginalvideofile.delete();
@@ -72,5 +94,65 @@ public class Configuration
     }
     return config;
   }
+
+  private void saveProperties()
+  {
+    try ( FileWriter writer = new FileWriter( propFile ) )
+    {
+      properties.store( writer, "PPt Squasher Properties" );
+    }
+    catch ( IOException ex )
+    {
+    }    
+  }
+  
+  public File getPreferredDirectory()
+  {
+    String s = properties.getProperty( "directory" );
+    if ( s != null )
+    {
+      File f = new File( s );
+      if ( f.exists() && f.isDirectory() )
+        return f;
+    }
+    return new File( System.getProperty( "user.home" ) );
+  }
+  
+  public void setPreferredDirectory( File f )
+  {
+    properties.setProperty( "directory", f.toString() );
+    saveProperties();
+  }
+  
+  public File getHomedir()
+  {
+    return homedir;
+  }
+
+  public File getFfmpegexec()
+  {
+    return ffmpegexec;
+  }
+
+  public File getFfmpegprobeexec()
+  {
+    return ffmpegprobeexec;
+  }
+
+  public File getTemporiginalvideofile()
+  {
+    return temporiginalvideofile;
+  }
+
+  public File getTempfilteredvideofile()
+  {
+    return tempfilteredvideofile;
+  }
+
+  public File getTempplaceholderimagefile()
+  {
+    return tempplaceholderimagefile;
+  }
+  
   
 }

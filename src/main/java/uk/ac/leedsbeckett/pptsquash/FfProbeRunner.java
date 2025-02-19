@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,7 +62,7 @@ public class FfProbeRunner
       DocumentBuilder builder = builderFactory.newDocumentBuilder();
       
       ArrayList<String> commandlist = new ArrayList<>();
-      commandlist.add( config.ffmpegprobeexec.getAbsolutePath() );
+      commandlist.add( config.getFfmpegprobeexec().getAbsolutePath() );
       commandlist.add( "-of" );
       commandlist.add( "xml" );
       commandlist.add( "-show_streams" );
@@ -104,7 +103,7 @@ public class FfProbeRunner
   
   public void test()
   {
-    File vinf  = new File( config.homedir, "media1-original.mp4" );
+    File vinf  = new File( config.getHomedir(), "media1-original.mp4" );
     try
     {
       runFfProbe( vinf );

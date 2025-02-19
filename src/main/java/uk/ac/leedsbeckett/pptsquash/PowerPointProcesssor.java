@@ -65,6 +65,10 @@ public class PowerPointProcesssor implements Runnable
   public void kill()
   {
     ffmpegrunner.kill();
+    try { Thread.sleep( 1000 ); }
+    catch ( InterruptedException ex ) {}
+    if ( status != STATUS_PROCESSED && outfile != null && outfile.exists() )
+      outfile.delete();
   }
   
   public void reset()
@@ -168,11 +172,11 @@ public class PowerPointProcesssor implements Runnable
     zos.putNextEntry( outZipEntry );
 
     // Stream zip input to temp file.
-    try ( FileOutputStream vforigout = new FileOutputStream( config.temporiginalvideofile ) )
+    try ( FileOutputStream vforigout = new FileOutputStream( config.getTemporiginalvideofile() ) )
     {
       zis.transferTo( vforigout );
     }
-    VideoInformation vi = this.ffproberunner.runFfProbe( config.temporiginalvideofile );
+    VideoInformation vi = this.ffproberunner.runFfProbe( config.getTemporiginalvideofile() );
     if ( vi == null )
       throw new IOException( "Unable to analyse video stream." );
     System.out.println( "Video width    " + vi.getWidth() );
@@ -181,29 +185,29 @@ public class PowerPointProcesssor implements Runnable
     if ( !vi.hasEnoughVideoInformation() )
       throw new IOException( "Unable to parse video information in MP4 clip." );
     
-    PlaceholderImageCreator.createPlaceholderImage( "png", config.tempplaceholderimagefile, vi.getWidth(), vi.getHeight() );
+    PlaceholderImageCreator.createPlaceholderImage( "png", config.getTempplaceholderimagefile(), vi.getWidth(), vi.getHeight() );
     
     int exitCode = this.ffmpegrunner.runFfmpeg( 
             vi, 
-            config.temporiginalvideofile, 
-            config.tempplaceholderimagefile, 
-            config.tempfilteredvideofile,
+            config.getTemporiginalvideofile(), 
+            config.getTempplaceholderimagefile(), 
+            config.getTempfilteredvideofile(),
             audioMode,
             videoMode );
-    listener.processingProgressFile( current-1, config.tempfilteredvideofile.length() );
-    config.temporiginalvideofile.delete();
+    listener.processingProgressFile( current-1, config.getTempfilteredvideofile().length() );
+    config.getTemporiginalvideofile().delete();
     if ( exitCode != 0 )
     {
-      config.tempfilteredvideofile.delete();
+      config.getTempfilteredvideofile().delete();
       throw new IOException( "Unable to process video." );
     }
     
     // Stream output temp file to zip output.
-    try ( FileInputStream vffiltin = new FileInputStream( config.tempfilteredvideofile ) )
+    try ( FileInputStream vffiltin = new FileInputStream( config.getTempfilteredvideofile() ) )
     {
       vffiltin.transferTo( zos );
     }
-    config.tempfilteredvideofile.delete();
+    config.getTempfilteredvideofile().delete();
 
     zos.closeEntry();
     zis.closeEntry();
@@ -246,6 +250,8 @@ public class PowerPointProcesssor implements Runnable
     catch ( IOException | InterruptedException ex )
     {
       Logger.getLogger(PowerPointProcesssor.class.getName() ).log( Level.SEVERE, null, ex );
+      if ( outfile != null && outfile.exists() )
+        outfile.delete();
       status = STATUS_ERROR;
       listener.analyserStatusChange();
       return;

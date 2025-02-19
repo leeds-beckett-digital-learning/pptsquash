@@ -256,7 +256,7 @@
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
                 <Property name="columns" type="int" value="2"/>
                 <Property name="horizontalGap" type="int" value="10"/>
-                <Property name="rows" type="int" value="4"/>
+                <Property name="rows" type="int" value="5"/>
                 <Property name="verticalGap" type="int" value="4"/>
               </Layout>
               <SubComponents>
@@ -299,6 +299,14 @@
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel5">
+                  <Properties>
+                    <Property name="horizontalAlignment" type="int" value="11"/>
+                    <Property name="text" type="java.lang.String" value="Relevant Media Objects:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="countMediaLabel">
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel1">
                   <Properties>

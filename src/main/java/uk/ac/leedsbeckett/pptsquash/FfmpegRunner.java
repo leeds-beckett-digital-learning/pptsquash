@@ -77,7 +77,7 @@ public class FfmpegRunner
     int outputindex = 0;
     ArrayList<String> maplist = new ArrayList<>();
     ArrayList<String> commandlist = new ArrayList<>();
-    commandlist.add( config.ffmpegexec.getAbsolutePath() );
+    commandlist.add( config.getFfmpegexec().getAbsolutePath() );
 
     // Automatic yes to overwrite question.
     commandlist.add( "-y" );
